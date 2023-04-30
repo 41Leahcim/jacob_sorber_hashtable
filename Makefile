@@ -1,4 +1,4 @@
-flags: -Wall -Wextra -fanalyzer -Os
+flags = -Wall -Wextra -fanalyzer -Os
 src = app.c
 
 app: $(src)
