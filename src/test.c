@@ -41,7 +41,7 @@ int main(int argc, const char **argv){
     uint32_t numwords = 0;
     while(!feof(file) && fgets(buffer, MAX_LINE, file) != NULL){
         buffer[strcspn(buffer, "\n\r")] = 0;
-        char *newentry = malloc(strlen(buffer) + 1);
+        char *newentry = (char*)malloc(strlen(buffer) + 1);
         if(newentry == NULL){
             break;
         }

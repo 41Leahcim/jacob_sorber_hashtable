@@ -97,7 +97,7 @@ bool hashTableInsert(HashTable *hashTable, const char *key, void *object){
 
 void* hashTableLookup(HashTable *hashTable, const char *key){
     if(key == NULL || hashTable == NULL){
-        return false;
+        return NULL;
     }
     size_t index = hashTableIndex(hashTable, key);
 
@@ -114,7 +114,7 @@ void* hashTableLookup(HashTable *hashTable, const char *key){
 
 void* hashTableDelete(HashTable *hashTable, const char *key){
     if(key == NULL || hashTable == NULL){
-        return false;
+        return NULL;
     }
     size_t index = hashTableIndex(hashTable, key);
 
