@@ -102,10 +102,10 @@ Person* hash_table_delete(const char *name){
 
     // Make the previous node point to the next of the current node, if there was a previous
     // Set the entry to the next node, otherwise
-    if(previous != NULL){
-        previous->next = current->next;
-    }else{
+    if(previous == NULL){
         hash_table[index] = current->next;
+    }else{
+        previous->next = current->next;
     }
 
     // Return the removed node
