@@ -1,5 +1,9 @@
 #include "hashtable.h"
 
+// Required for stdup
+#define __STDC_ALLOC_LIB__
+#define __STDC_WANT_LIB_EXT2__ 1
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,37 +14,38 @@ typedef struct Entry{
     struct Entry *next;
 } Entry;
 
-typedef struct _HashTable{
+struct _HashTable{
     size_t size;
     Hashfunction *hash;
+    cleanupFunction *cleanup;
     Entry **elements;
-} HashTable;
+};
 
-HashTable* hashTableCreate(uint32_t size, Hashfunction *hashFunction){
+// Pass in null for free behaviour
+HashTable* hashTableCreate(uint32_t size, Hashfunction *hashFunction, cleanupFunction *cf){
     HashTable *hashTable = (HashTable*)malloc(sizeof(*hashTable));
     if(hashTable == NULL){
         return NULL;
     }
     hashTable->size= size;
     hashTable->hash = hashFunction;
+    if(cf != NULL){
+        hashTable->cleanup = cf;
+    }else{
+        hashTable->cleanup = free;
+    }
     hashTable->elements = (Entry**)calloc(sizeof(Entry*), hashTable->size);
     return hashTable;
 }
 
 void hashTableDestroy(HashTable *hashTable){
     for(size_t i = 0;i < hashTable->size;i++){
-        Entry *previous, *current;
-        for(previous = NULL, current = hashTable->elements[i];current != NULL;previous = current, current = current->next){
-            if(previous != NULL){
-                free(previous->key);
-                free(previous->object);
-                free(previous);
-            }
-        }
-        if(previous != NULL){
-            free(previous->key);
-            free(previous->object);
-            free(previous);
+        while(hashTable->elements[i] != NULL){
+            Entry *current = hashTable->elements[i];
+            hashTable->elements[i] = current->next;
+            free(current->key);
+            hashTable->cleanup(current->object);
+            free(current);
         }
     }
     free(hashTable->elements);
@@ -82,7 +87,7 @@ bool hashTableInsert(HashTable *hashTable, const char *key, void *object){
         return false;
     }
     entry->object = object;
-    entry->key = (char*)malloc(strlen(key) + 1);
+    entry->key = strdup(key);
     if(entry->key == NULL){
         free(entry);
         return false;

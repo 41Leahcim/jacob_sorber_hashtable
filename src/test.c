@@ -23,6 +23,11 @@ void generateRandomWord(char *buffer, size_t length){
     buffer[length - 1] = 0;
 }
 
+void mycleanup(void *p){
+    printf("Destroying %p\n", p);
+    free(p);
+}
+
 int main(int argc, const char **argv){
     if(argc != 3){
         printf("Usage: %s <wordlist filename> <num guesses>\n", argv[0]);
@@ -34,7 +39,7 @@ int main(int argc, const char **argv){
     // 1_048_576 entries
     const int tablesize = (1 << 20);
     
-    HashTable *table = hashTableCreate(tablesize, hash);
+    HashTable *table = hashTableCreate(tablesize, hash, mycleanup);
 
     FILE *file = fopen(filename, "r");
     char buffer[MAX_LINE];
