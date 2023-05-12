@@ -14,3 +14,4 @@ void hashTablePrint(HashTable *hashTable);
 bool hashTableInsert(HashTable *hashTable, const char *key, void *object);
 void* hashTableLookup(HashTable *hashTable, const char *key);
 void* hashTableDelete(HashTable *hashTable, const char *key);
+uint64_t hash_table_collisions(HashTable *hashTable);

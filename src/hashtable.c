@@ -19,6 +19,7 @@ struct _HashTable{
     Hashfunction *hash;
     cleanupFunction *cleanup;
     Entry **elements;
+    uint64_t collisions;
 };
 
 // Pass in null for free behaviour
@@ -35,6 +36,7 @@ HashTable* hashTableCreate(uint32_t size, Hashfunction *hashFunction, cleanupFun
         hashTable->cleanup = free;
     }
     hashTable->elements = (Entry**)calloc(sizeof(Entry*), hashTable->size);
+    hashTable->collisions = 0;
     return hashTable;
 }
 
@@ -141,4 +143,8 @@ void* hashTableDelete(HashTable *hashTable, const char *key){
     void *result = current->object;
     free(current);
     return result;
+}
+
+uint64_t hash_table_collisions(HashTable *hashTable){
+    return hashTable->collisions;
 }
