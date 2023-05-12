@@ -5,13 +5,45 @@
 #include "hashtable.h"
 
 #define MAX_LINE 4096
+#define FNV_PRIME 0x100000001b3
+#define FNV_OFFSET 0xcbf29ce48422325UL
 
-uint64_t hash(const char *name, size_t length){
+uint64_t hash(const char *data, size_t length){
     // Calculate and return the hash
     uint64_t hash_value = 0;
     for(size_t i = 0;i < length;i++){
-        hash_value += name[i];
-        hash_value = hash_value * name[i];
+        hash_value += data[i];
+        hash_value *= data[i];
+    }
+    return hash_value;
+}
+
+uint64_t hash_fnv0(const char *data, size_t length){
+    // Calculate and return the hash
+    uint64_t hash_value = 0;
+    for(size_t i = 0;i < length;i++){
+        hash_value *= FNV_PRIME;
+        hash_value ^= data[i];
+    }
+    return hash_value;
+}
+
+uint64_t hash_fnv1(const char *data, size_t length){
+    // Calculate and return the hash
+    uint64_t hash_value = FNV_OFFSET;
+    for(size_t i = 0;i < length;i++){
+        hash_value *= FNV_PRIME;
+        hash_value ^= data[i];
+    }
+    return hash_value;
+}
+
+uint64_t hash_fnv1a(const char *data, size_t length){
+    // Calculate and return the hash
+    uint64_t hash_value = FNV_OFFSET;
+    for(size_t i = 0;i < length;i++){
+        hash_value ^= data[i];
+        hash_value *= FNV_PRIME;
     }
     return hash_value;
 }
@@ -39,7 +71,7 @@ int main(int argc, const char **argv){
     // 1_048_576 entries
     const int tablesize = (1 << 20);
     
-    HashTable *table = hashTableCreate(tablesize, hash, mycleanup);
+    HashTable *table = hashTableCreate(tablesize, hash_fnv1a, NULL);
 
     FILE *file = fopen(filename, "r");
     char buffer[MAX_LINE];
@@ -56,6 +88,7 @@ int main(int argc, const char **argv){
     }
     fclose(file);
     printf("Loaded %d words into the table.\n", numwords);
+    printf("\t... with %lu collisions\n", hash_table_collisions(table));
 
     uint32_t good_guesses = 0;
     const int shortest_guess = 2;

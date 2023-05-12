@@ -97,6 +97,9 @@ bool hashTableInsert(HashTable *hashTable, const char *key, void *object){
     strcpy(entry->key, key);
 
     // Insert entry
+    if(hashTable->elements[index] != NULL){
+        hashTable->collisions++;
+    }
     entry->next = hashTable->elements[index];
     hashTable->elements[index] = entry;
     return true;
